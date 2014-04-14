@@ -19,14 +19,14 @@
 
 (defn get-page [writer page]
   "get a particular page from a PDF document"
-  (.getOverContent writer page))
+    (.getOverContent writer page))
 
 (defn draw-line [& {:keys [content x y x1 y1 thickness]}]
   "draw a line at given coordinates"
-    (.setLineWidth content thickness)
-    (.moveTo content x y)
-    (.lineTo content (+ x x1) (+ y y1))
-    (.stroke content))
+  (.setLineWidth content thickness)
+  (.moveTo content x y)
+  (.lineTo content (+ x x1) (+ y y1))
+  (.stroke content))
 
 (defn display-options [options]
   (println options))
@@ -36,13 +36,16 @@
    ["-j" "--json JSON-FILE" "JSON file with name mappings"
     :default ""
     :parse-fn #(io/file %)
-    :validate [#(.isFile %) "name should be provided"]]
+    :required "PATH"
+    :validate [#(.isFile %) "JSON file should be provided"]]
    ["-i" "--input INTPUT-PDF" "Template PDF file to start with"
-    :default ""
-    :parse-fn #(str (read-string %))]
+    :parse-fn #(str (read-string %))
+    :required "PATH"
+    ]
    ["-o" "--output OUTPUT-PDF" "Name under which the new PDF file will be saved"
-    :default ""
-    :parse-fn #(str (read-string %))]])
+    :required "PATH"
+    :parse-fn #(str (read-string %))
+    :validate [#(not (string/blank? %))]]])
 
 (defn exit [status msg]
   (println msg)
@@ -51,6 +54,18 @@
 (defn error-msg [errors]
   (str "The following errors occurred while parsing your command:\n\n"
        (string/join \newline errors)))
+
+(defn mandatory? [options]
+  "check if all three options are provided: input & output files and
+   the field names"
+  (let [error-line ["all three options are required: INPUT, OUTPUT & JSON"]
+        required-options #{:input :output :json}]
+  (doseq [opt required-options]
+    (try
+      (if (string/blank? (.toString (opt options)))
+        (exit 1 (error-msg error-line)))
+      (catch java.lang.NullPointerException e
+        (exit 1 (error-msg ["all three options are required: INPUT, OUTPUT & JSON"])))))))
 
 (defn read-json [json-file]
   "read in a JSON file with form field name mappings, where the key is
@@ -77,8 +92,10 @@
                  :thickness (:thickness strike)))
     (.close writer)))
 
-
 (defn -main [& args]
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options)]
+    (mandatory? options)
+    (cond
+     errors (exit 1 (error-msg errors)))
     (strike-out options)))
