@@ -1,4 +1,4 @@
-(defproject striker "0.3.0"
+(defproject striker "0.3.1"
   :description "Draw lines on PDF documents"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
