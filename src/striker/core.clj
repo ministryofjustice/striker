@@ -76,13 +76,20 @@
     (catch com.fasterxml.jackson.core.JsonParseException e
       (exit 1 (error-msg ["not a proper JSON file"])))))
 
+(defn flatten-pdf
+  "Flatten PDF document"
+  [pdf]
+  (.setFormFlattening pdf true))
+
 (defn strike-out [options]
   "take options which will contain INPUT & OUTPUT files as well as
   x,y,x1,y1 coordiantes along with the line thickness that should be
   drawn/struck-out in a INPUT PDF file"
   (let [reader (make-reader (:input options))
         writer (make-writer reader (:output options))
-        strikes (:strikes (read-json (:json options)))]
+        json (read-json (:json options))
+        strikes (:strikes json)
+        flatten-option (:flatten json)]
     (doseq [strike strikes]
       (draw-line :content (get-page writer (:page strike))
                  :x (:x strike)
@@ -90,6 +97,8 @@
                  :x1 (:x1 strike)
                  :y1 (:y1 strike)
                  :thickness (:thickness strike)))
+    (if (true? flatten-option)
+      (flatten-pdf writer))
     (.close writer)))
 
 (defn -main [& args]
