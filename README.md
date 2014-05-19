@@ -5,7 +5,11 @@ document.
 
 ## Usage
 
-Make sure you have Java & [Leiningen](http://leiningen.org/) installed. Then:
+Make sure you have Java & [Leiningen](http://leiningen.org/) installed. e.g. on Mac OSX:
+
+    $ brew install leiningen
+
+Then:
 
     $ lein uberjar
     $ java -jar target/striker-0.3.1-standalone.jar \
