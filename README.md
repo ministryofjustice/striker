@@ -11,6 +11,8 @@ Make sure you have Java & [Leiningen](http://leiningen.org/) installed. e.g. on 
 
 Then:
 
+    $ git clone git@github.com:ministryofjustice/striker.git
+    $ cd striker
     $ lein uberjar
     $ java -jar target/striker-0.3.1-standalone.jar \
         -i form.pdf \
